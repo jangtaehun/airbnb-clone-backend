@@ -4,4 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 # user을 조작할 수 있는 class
 class User(AbstractUser):
-    pass
+    first_name = models.CharField(max_length=150, editable=False)
+    last_name = models.CharField(max_length=150, editable=False)
+    name = models.CharField(max_length=150, default="")
+    is_host = models.BooleanField(default=False)
