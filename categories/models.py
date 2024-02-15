@@ -28,4 +28,4 @@ class Category(CommonModel):
         verbose_name_plural = "Categories"
 
     def __str__(self):
-        return f"{self.kind.title}: {self.name}"
+        return f"{self.kind.title()}: {self.name}"
