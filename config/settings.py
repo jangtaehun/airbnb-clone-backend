@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 THIRD_PARTY_APPS = [
-    "rest_franework",
+    "rest_framework",
 ]
 
 CUSTOM_APPS = [
