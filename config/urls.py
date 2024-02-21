@@ -17,10 +17,17 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/rooms/", include("rooms.urls")),
     path("api/v1/categories/", include("categories.urls")),
+    path("api/v1/experiences/", include("experiences.urls")),
+    path("api/v1/medias/", include("medias.urls")),
 ]
+
+# 실제 서비스에서 권장하지 않는다. -> 보안 위험
+# 유저가 올리는 파일을 코드 옆에 두면 안 된다.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
