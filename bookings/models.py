@@ -44,7 +44,7 @@ class Booking(CommonModel):
         null=True,
         blank=True,
     )
-    check_out = models.DateTimeField(
+    check_out = models.DateField(
         null=True,
         blank=True,
     )

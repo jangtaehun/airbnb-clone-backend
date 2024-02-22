@@ -27,6 +27,7 @@ urlpatterns = [
     path("api/v1/experiences/", include("experiences.urls")),
     path("api/v1/medias/", include("medias.urls")),
     path("api/v1/wishlists/", include("wishlists.urls")),
+    path("api/v1/users/", include("users.urls")),
 ]
 
 # 실제 서비스에서 권장하지 않는다. -> 보안 위험

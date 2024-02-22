@@ -231,6 +231,7 @@ class RoomReviews(APIView):
         end = start + page_size
 
         room = self.get_object(pk)
+        print(room)
         serializer = ReviewSerializer(
             room.reviews.all()[start:end],
             many=True,
@@ -301,6 +302,12 @@ class RoomBookings(APIView):
         serializer = CreateRoomBookingSerializer(data=request.data)
 
         if serializer.is_valid():
-            return Response({"ok": True})
+            booking = serializer.save(
+                room=room,
+                user=request.user,
+                kind=Booking.BookingKindChoices.ROOM,
+            )
+            serializer = PublicBookingSerializer(booking)
+            return Response(serializer.data)
         else:
             return Response(serializer.errors)

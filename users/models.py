@@ -28,7 +28,7 @@ class User(AbstractUser):
 
     first_name = models.CharField(max_length=150, editable=False)
     last_name = models.CharField(max_length=150, editable=False)
-    avatar = models.ImageField(blank=True)  # form에서 필드가 필수적이지 않게 해준다.
+    avatar = models.URLField(blank=True)  # form에서 필드가 필수적이지 않게 해준다.
     name = models.CharField(max_length=150, default="")
     is_host = models.BooleanField(default=False)
     gender = models.CharField(max_length=10, choices=GenderChoices.choices)
