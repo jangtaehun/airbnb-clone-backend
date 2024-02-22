@@ -1,8 +1,8 @@
-from rest_framework.views import APIView
-from .models import Amenity, Room
-from categories.models import Category
-from .serializer import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from django.db import transaction
+from django.conf import settings
+from django.utils import timezone
 
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import (
     NotFound,
@@ -11,14 +11,16 @@ from rest_framework.exceptions import (
     PermissionDenied,
 )
 from rest_framework.status import HTTP_204_NO_CONTENT
-from django.db import transaction
-
-from reviews.serializers import ReviewSerializer
-
-from medias.serializers import PhotoSerializer
-from django.conf import settings
-
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from .serializer import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
+from .models import Amenity, Room
+from categories.models import Category
+from bookings.models import Booking
+from bookings.serializer import PublicBookingSerializer, CreateRoomBookingSerializer
+
 
 # transaction 모든 변경사항을 원래 상태로 되돌려 놓는다
 
@@ -270,5 +272,35 @@ class RoomPhotos(APIView):
             photo = serializer.save(room=room)
             serializer = PhotoSerializer(photo)
             return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class RoomBookings(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except:
+            raise NotFound
+
+    def get(self, request, pk):
+        room = self.get_object(pk)
+        now = timezone.now().date()
+        bookings = Booking.objects.filter(
+            room=room,
+            kind=Booking.BookingKindChoices.ROOM,
+            check_in__gte=now,
+        )
+        PhotoSerializer = PublicBookingSerializer(bookings, many=True)
+        return Response(PhotoSerializer.data)
+
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        serializer = CreateRoomBookingSerializer(data=request.data)
+
+        if serializer.is_valid():
+            return Response({"ok": True})
         else:
             return Response(serializer.errors)
