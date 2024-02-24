@@ -1,10 +1,19 @@
 from rest_framework.views import APIView
-from .models import Perk
-from .serializer import PerkSerializer
+from .models import Perk, Experience
+from .serializer import PerkSerializer, ExperienceSerializer
 
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.status import HTTP_204_NO_CONTENT
+
+
+class ExperienceList(APIView):
+    def get(self, request):
+        all_experience = Experience.objects.all()
+        serializer = ExperienceSerializer(
+            all_experience, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
 
 
 class Perks(APIView):
