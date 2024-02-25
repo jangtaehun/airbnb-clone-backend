@@ -52,6 +52,14 @@ class Booking(CommonModel):
         null=True,
         blank=True,
     )
+    experience_start = models.TimeField(
+        null=True,
+        blank=True,
+    )
+    experience_end = models.TimeField(
+        null=True,
+        blank=True,
+    )
     guests = models.PositiveIntegerField()
 
     def __str__(self):

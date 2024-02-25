@@ -14,13 +14,3 @@ class ExperienceSerializer(ModelSerializer):
     class Meta:
         model = Experience
         fields = "__all__"
-
-
-class ExperiencePerkSerializer(ModelSerializer):
-    # perks = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Experience
-        fields = ("perks",)
-
-    # def get_perks(self, experience):

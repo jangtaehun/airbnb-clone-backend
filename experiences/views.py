@@ -1,10 +1,18 @@
 from rest_framework.views import APIView
 from .models import Perk, Experience
-from .serializer import PerkSerializer, ExperienceSerializer, ExperiencePerkSerializer
+from .serializer import PerkSerializer, ExperienceSerializer
+from bookings.models import Booking
+from bookings.serializer import (
+    PublicBookingSerializer,
+    CreateExperienceBookingSerializer,
+    BookingExperienceSerializer,
+)
+
+from django.utils import timezone
 
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
@@ -55,7 +63,7 @@ class ExperienceDetail(APIView):
             return Response(serializer.errors)
 
     def delete(self, request, pk):
-        experience = self.get_object(pk)
+        experience = self.get_object(pk=pk)
         experience.delete()
         return Response(status=HTTP_204_NO_CONTENT)
 
@@ -104,7 +112,64 @@ class ExperienceBooking(APIView):
             raise NotFound
 
     def get(self, request, pk):
-        pass
+        experience = self.get_object(pk)
+        now = timezone.localtime(timezone.now())
+        bookings = Booking.objects.filter(
+            experience=experience,
+            kind=Booking.BookingKindChoices.EXPERIENCE,
+            check_in__gt=now,
+        )
+        serializer = BookingExperienceSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        experience = self.get_object(pk)
+        serializer = CreateExperienceBookingSerializer(data=request.data)
+
+        if serializer.is_valid():
+            booking = serializer.save(
+                experience=experience,
+                user=request.user,
+                kind=Booking.BookingKindChoices.EXPERIENCE,
+            )
+            serializer = BookingExperienceSerializer(booking)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class ExperienceDelete(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, ex_pk):
+        try:
+            return Booking.objects.get(pk=ex_pk)
+        except Booking.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk, ex_pk):
+        experience = self.get_object(ex_pk)
+        serializer = BookingExperienceSerializer(experience)
+        return Response(serializer.data)
+
+    def put(self, request, pk, ex_pk):
+        experience = self.get_object(ex_pk)
+        serializer = BookingExperienceSerializer(
+            experience,
+            data=request.data,
+            partial=True,
+        )
+        if serializer.is_valid():
+            updated_experience = serializer.save()
+            serializer = BookingExperienceSerializer(updated_experience)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, pk, ex_pk):
+        experience = self.get_object(ex_pk)
+        experience.delete()
+        return Response(status=HTTP_200_OK)
 
 
 class Perks(APIView):

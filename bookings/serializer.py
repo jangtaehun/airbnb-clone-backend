@@ -40,8 +40,77 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
         return data
 
 
-class PublicBookingSerializer(serializers.ModelSerializer):
+class CreateExperienceBookingSerializer(serializers.ModelSerializer):
+    experience_time = serializers.TimeField()
+    experience_start = serializers.TimeField()
+    experience_end = serializers.TimeField()
+    check_in = serializers.DateField()
 
+    class Meta:
+        model = Booking
+        fields = (
+            "experience",
+            "check_in",
+            "experience_time",
+            "experience_start",
+            "experience_end",
+            "guests",
+        )
+
+    # def validate_experience_start(self, value):
+    #     now = timezone.localtime(timezone.now()).time()
+    #     if now > value:
+    #         raise serializers.ValidationError("너무 늦었어!!")
+    #     return value
+
+    # def validate_experience_end(self, value):
+    #     now = timezone.localtime(timezone.now()).time()
+    #     if now > value:
+    #         raise serializers.ValidationError("너무 늦었어!!")
+    #     return value
+
+    def validate_check_in(self, value):
+        now = timezone.localtime(timezone.now()).date()
+        if now > value:
+            raise serializers.ValidationError("Past!!")
+        return value
+
+    def validate(self, date):
+        if date["experience_start"] > date["experience_end"]:
+            raise serializers.ValidationError("OMG!!")
+
+        if date["experience_time"] < date["experience_start"]:
+            raise serializers.ValidationError("너무 빨라")
+
+        if date["experience_time"] > date["experience_end"]:
+            raise serializers.ValidationError("너무 늦어")
+
+        if Booking.objects.filter(check_in=date["check_in"]).exists():
+            raise serializers.ValidationError("그날은 이미 예약")
+        else:
+            if Booking.objects.filter(
+                experience_start__lte=date["experience_end"],
+                experience_end__gte=date["experience_start"],
+            ).exists():
+                raise serializers.ValidationError("그 시간은 이미 예약")
+        return date
+
+
+class BookingExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = (
+            "pk",
+            "experience",
+            "check_in",
+            "experience_time",
+            "experience_start",
+            "experience_end",
+            "guests",
+        )
+
+
+class PublicBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = (
