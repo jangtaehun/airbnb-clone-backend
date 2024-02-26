@@ -46,7 +46,7 @@ class Room(CommonModel):
         related_name="rooms",
     )
 
-    def total_amenities(room):  # 추가
+    def total_amenities(room):  # 추가 total_amenities(self) 가능
         return room.amenities.count()
 
     def __str__(self):
