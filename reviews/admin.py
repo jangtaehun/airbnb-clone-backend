@@ -14,6 +14,7 @@ class WordFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, reviews):
+        print(reviews)
         # self.value() => url에 있는 읽어서 준다.
         word = self.value()
         if word is None:
@@ -36,7 +37,7 @@ class ScoreFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, rating):
-        print(rating)
+        # print(rating)
         rate = self.value()
         if rate is None:
             pass

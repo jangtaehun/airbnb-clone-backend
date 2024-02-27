@@ -77,7 +77,9 @@ class RoomDetailSerializer(ModelSerializer):
     # get_ + 계산하려는 속성의 이름을 붙여야 한다.
     # 현재 serializing하고 있는 오브젝트와 함께 호출
     def get_rating(self, room):
+        print("\n")
         print(self.context)
+        print(room.rating())
         return room.rating()
 
     def get_is_owner(self, room):
