@@ -23,5 +23,7 @@ urlpatterns = [
     path("@<str:username>/reviews", UserReviews.as_view()),
     path("@<str:username>/rooms", UserRoom.as_view()),
     path("token-login", obtain_auth_token),
+    path("github", views.GithubLogin.as_view()),
+    path("kakao", views.KakaoLogin.as_view()),
     path("jwt-login", views.JWTLogIn.as_view()),
 ]
