@@ -117,13 +117,13 @@ class Rooms(APIView):
         # print(dir(request.user))
         # if request.user.is_authenticated:  # 인증받지 않은 사용자 오류 / IsAuthenticatedOrReadOnly 사용으로 생략 가능
         serializer = RoomDetailSerializer(data=request.data)
-        if serializer.is_valid():
 
+        if serializer.is_valid():
             # category 추가
             category_pk = request.data.get("category")
-            print(request.data)  # 유저가 입력한 값이 딕셔너리 형태로 전달된다.
-            print(category_pk)  # key가 category인 것을 선택
-            print(request.user)
+            # print(request.data)  # 유저가 입력한 값이 딕셔너리 형태로 전달된다.
+            # print(category_pk)  # key가 category인 것을 선택
+            # print(request.user)
             if not category_pk:
                 raise ParseError("Category is required.")
             try:
@@ -135,7 +135,7 @@ class Rooms(APIView):
 
             try:
                 with transaction.atomic():
-                    new_room = serializer.save(
+                    room = serializer.save(
                         owner=request.user,
                         category=category,
                     )
@@ -149,11 +149,14 @@ class Rooms(APIView):
                         amenity = Amenity.objects.get(pk=amenity_pk)
 
                         # manytomany는 add()를 통해 추가시켜야 한다. / remove()
-                        new_room.amenities.add(amenity)
-                    serializer = RoomDetailSerializer(new_room)
+                        room.amenities.add(amenity)
+                    serializer = RoomDetailSerializer(
+                        room,
+                        context={"request": request},
+                    )
                     return Response(serializer.data)
             except Exception:
-                raise ParseError("Ameniti not found")
+                raise ParseError("Amenities not found")
 
         else:
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

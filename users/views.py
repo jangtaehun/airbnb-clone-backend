@@ -139,9 +139,11 @@ class LogIn(APIView):
 
         if user:
             login(request, user)
-            return Response({"ok": "Welcom!"})
+            return Response({"ok": "welcome"}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "wrong password"})
+            return Response(
+                {"error": "wrong password"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class LogOut(APIView):
@@ -270,3 +272,31 @@ class KakaoLogin(APIView):
                 return Response(status=status.HTTP_200_OK)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SignUp(APIView):
+    def post(self, request):
+        try:
+            name = request.data.get("name")
+            email = request.data.get("email")
+            username = request.data.get("username")
+            password = request.data.get("password")
+            if User.objects.filter(username=username):
+                return Response(
+                    {
+                        "Failed": "The username is already used. Please use another username."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if User.objects.filter(email=email):
+                return Response(
+                    {"Failed": "The email is already used. Please use another email."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            user = User.objects.create(username=username, name=name, email=email)
+            user.set_password(password)
+            user.save()
+            login(request, user)
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"Failed": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)

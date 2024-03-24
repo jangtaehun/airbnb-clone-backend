@@ -13,6 +13,7 @@ class AmenitySerializer(ModelSerializer):
     class Meta:
         model = Amenity
         fields = (
+            "pk",
             "name",
             "description",
         )
@@ -77,24 +78,27 @@ class RoomDetailSerializer(ModelSerializer):
     # get_ + 계산하려는 속성의 이름을 붙여야 한다.
     # 현재 serializing하고 있는 오브젝트와 함께 호출
     def get_rating(self, room):
-        print("\n")
-        print(self.context)
-        print(room.rating())
+        # print("\n")
+        # print(self.context)
+        # print(room.rating())
         return room.rating()
 
     def get_is_owner(self, room):
-        request = self.context["request"]
-        return room.owner == request.user
+        request = self.context.get("request")
+        if request:
+            return room.owner == request.user
+        return False
 
     # room => serializer에서 serializer하는 것
     def get_is_liked(self, room):
-        request = self.context["request"]
-        if request.user.is_authenticated:
-            return Wishlist.objects.filter(
-                user=request.user, rooms__pk=room.pk
-            ).exists()
-        else:
-            return False
+        request = self.context.get("request")
+        if request:
+            if request.user.is_authenticated:
+                return Wishlist.objects.filter(
+                    user=request.user,
+                    rooms__pk=room.pk,
+                ).exists()
+        return False
 
     # def create(self, validated_data):
     #     print(validated_data)

@@ -10,6 +10,7 @@ from .views import (
     UserRoom,
     LogIn,
     LogOut,
+    SignUp,
 )
 
 
@@ -25,5 +26,6 @@ urlpatterns = [
     path("token-login", obtain_auth_token),
     path("github", views.GithubLogin.as_view()),
     path("kakao", views.KakaoLogin.as_view()),
+    path("sign-up", views.SignUp.as_view()),
     path("jwt-login", views.JWTLogIn.as_view()),
 ]

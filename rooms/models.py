@@ -8,7 +8,10 @@ class Room(CommonModel):
     """Room Model Definition"""
 
     class RoomKindChoices(models.TextChoices):
-        ENTIRE_PLACE = ("entire_place", "Entire Place")
+        ENTIRE_PLACE = (
+            "entire_place",
+            "Entire Place",
+        )
         PRIVATE_ROOM = (
             "private_room",
             "Private Room",
